@@ -125,12 +125,10 @@ public class LinkedListDeque<T> implements Deque<T>  {
         if (o.size() != this.size()) {
             return false;
         }
-        for (T item : this) {
-           for (T item1 : o) {
-               if (item1 != item){
-                  return false;
-               }
-           }
+        for (int i = 0 ; i < this.size() ; i++){
+            if (o.get(i) != this.get(i)){
+                return false ;
+            }
         }
         return true;
     }

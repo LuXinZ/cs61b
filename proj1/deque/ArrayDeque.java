@@ -5,82 +5,72 @@ import java.util.Iterator;
 public class ArrayDeque <T> implements Deque<T>, Iterable<T> {
    public T[] array;
    public  int size;
-   int prev;
-   int next;
+   public int first;
    public ArrayDeque(){
        array =(T[]) new Object[8]; // 向下转型
-       prev = 8  / 2  ;
-       next = prev +1;
+       first= 8  / 2  ;
    }
     public void addFirst(T item) {
-        checkSize();
-       size +=1;
-       array[prev] = item;
-        if(prev == 0){
-            prev = array.length -1;
-        }else{
-            prev -=1;
+        array[first] = item;
+        first --;
+        size +=1;
+        if (first < 0){
+            resize(array.length * 2 );
         }
     }
     public void addLast(T item){
-       checkSize();
-       size +=1;
-       array[next] = item;
-       if (next == array.length -1 ){
-           next = 0;
-       }else{
-           next +=1 ;
-       }
+        int lastIndex = first + size + 1 ;
+        array[lastIndex] = item;
+
+        size += 1 ;
+        if (lastIndex == array.length - 1 ){
+            resize(array.length * 2 );
+        }
 
     }
     public T removeFirst(){
        if (size == 0){
            return null;
        }
-        int po = prev + 1 ;
-       if (po >= array.length){
-          po = 0;
-       }
-        T item = array[po];
-       array[po] = null;
-        prev = po  ;
         size -=1 ;
+       first ++;
+       T item = array[first] ;
+       array[first] = null;
+        if (size < array.length / 4 ){
+            resize(array.length / 2 );
+        }
+       return item;
 
-        return item;
     }
     public T removeLast(){
        if (size ==0){
            return null;
        }
-       T item = array[next -1 ];
-        next -=1;
-        size -=1;
+        T item = array[first + size  ] ;
+        size -=1 ;
+        if (size < array.length / 4 ){
+            resize(array.length / 2 );
+        }
         return item;
     }
 
     @Override
     public T get(int index) {
-        if (prev + 1 + index > (array.length -1) ){
-            return array[(index - (array.length -1 - prev)) ];
-        }      else{
-           return array[prev + 1 + index];
-        }
+       return array[first + index + 1 ];
     }
 
-    public void checkSize (){
-       if (array.length == size){
-           resize(array.length * 2 );
-       }
-    }
+
     public void resize(int s ){
        // copy
         T[] a =(T[]) new Object[s]; // 向下转型
         // des   :   size - prev
         //
-        System.arraycopy(array, next, a, s- (size - next), size - next);
-        System.arraycopy(array, 0 , a, 0,next);
-        prev = next + (s - size) - 1;
+        int start = (s / 2 )  - (size() /  2 );
+        System.arraycopy(array,first + 1,a,start, size());
         array = a;
+        first = start - 1 ;
+
+
     }
 
     public int size() {
@@ -95,12 +85,11 @@ public class ArrayDeque <T> implements Deque<T>, Iterable<T> {
     }
 
     public void printDeque() {
-       int p = prev;
-        for (int i = 0 ; i < size ; i ++){
-            System.out.print(array[p]);
-            System.out.print(" ");
-            prev +=1;
-        }
+           for (int i = 0 ; i < size ; i ++){
+               System.out.print(get(i));
+           }
+
+            System.out.println();
     }
 
     private class ArraySetIterator implements Iterator<T> {
